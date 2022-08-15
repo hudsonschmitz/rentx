@@ -1,0 +1,32 @@
+import { AppError } from "@errors/AppError";
+import { ICatergoriesRepository } from "@modules/cars/repositories/interfaces/ICategoriesRepository";
+import { inject, injectable } from "tsyringe";
+
+
+
+interface IRequest {
+  name: string;
+  description: string;
+}
+
+@injectable()
+class CreateCategoryUseCase {
+
+  constructor(
+    @inject("CategoriesRepository")
+    private categoriesRepository: ICatergoriesRepository
+  ) {}
+
+  async execute({ name, description }: IRequest) {
+    const categoryAlreadyExists = await this.categoriesRepository.findByName(name);
+
+    if(categoryAlreadyExists) {
+      throw new AppError("Category already exists!");
+    }
+
+    this.categoriesRepository.create({ name, description });
+  }
+  
+}
+
+export { CreateCategoryUseCase }
